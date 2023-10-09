@@ -15,9 +15,8 @@ const userSchema = new Schema(
       required: true,
       validate: /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/,
     },
-    thoughts: [{ type: ObjectId, ref: 'thought' }],
-    friends: [{ type: ObjectId, ref: 'user' }],
-    // TODO: do ojbectIDs need schema.types prefix?
+    thoughts: [{ type: Schema.Types.ObjectId, ref: 'thought' }],
+    friends: [{ type: Schema.Types.ObjectId, ref: 'user' }],
   },
   {
     toJSON: {

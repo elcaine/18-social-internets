@@ -1,4 +1,5 @@
 const { Thought, User } = require('../models');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports = {
   async getThoughts(req, res) {
@@ -12,7 +13,6 @@ module.exports = {
   async getSingleThought(req, res) {
     try {
       const thought = await Thought.findOne({ _id: req.params.thoughtId })
-
       if (!thought) {
         return res.status(404).json({ message: 'No thought with that ID' });
       }
@@ -26,6 +26,11 @@ module.exports = {
   async createThought(req, res) {
     try {
       const thought = await Thought.create(req.body);
+      if(!ObjectId.isValid(req.body.userId)){
+        return res.status(404).json({
+          message: 'Thought created, but user ID is invalid!',
+        });
+      }
       const user = await User.findOneAndUpdate(
         { _id: req.body.userId },
         { $addToSet: { thoughts: thought._id } },
@@ -79,7 +84,7 @@ module.exports = {
       if (!user) {
         return res
           .status(404)
-          .json({ message: 'Thought created but no user with this id!' });
+          .json({ message: 'No user with this id!' });
       }
 
       res.json({ message: 'Thought successfully deleted!' });
@@ -88,11 +93,11 @@ module.exports = {
     }
   },
   // Add a thought response
-  async addThoughtResponse(req, res) {
+  async addThoughtReaction(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
-        { $addToSet: { responses: req.body } },
+        { $addToSet: { reactions: req.body } },
         { runValidators: true, new: true }
       );
 
@@ -106,11 +111,11 @@ module.exports = {
     }
   },
   // Remove thought response
-  async removeThoughtResponse(req, res) {
+  async removeThoughtReaction(req, res) {
     try {
       const thought = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
-        { $pull: { reactions: { responseId: req.params.responseId } } },
+        { $pull: { reactions: { reactionId: req.params.reactionId } } },
         { runValidators: true, new: true }
       )
 
