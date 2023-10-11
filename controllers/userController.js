@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 module.exports = {
   async getUsers(req, res) {
@@ -35,14 +36,13 @@ module.exports = {
   async addFriend(req, res) {
     try {
       const friend = await User.findOne( { _id: req.params.friendId } );
-
       if (!friend) {
         return res.status(404).json({ message: 'Friend not found in Users!' });
       }
 
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $addToSet: { friends: req.body } },
+        { $addToSet: { friends: friend._id } },
         { runValidators: true, new: true }
       );
 
@@ -90,9 +90,14 @@ module.exports = {
   },
   async deleteFriend(req, res) {
     try {
+      const friend = await User.findOne( { _id: req.params.friendId } );
+      if (!friend) {
+        return res.status(404).json({ message: 'Friend not found in Users!' });
+      }
+
       const user = await User.findOneAndUpdate(
-        { thoughts: req.params.thoughtId },
-        { $pull: { friends: req.params.friendId } },
+        { _id: req.params.userId },
+        { $pull: { friends: friend._id } },
         { new: true }
       );
 
