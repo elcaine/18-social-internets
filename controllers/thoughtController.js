@@ -30,23 +30,23 @@ module.exports = {
   // create a new thought
   async createThought(req, res) {
     try {
-      const thought = await Thought.create(req.body);
       if(!ObjectId.isValid(req.body.userId)){
         return res.status(404).json({
-          message: 'Thought created, but user ID is invalid!',
+          message: 'User ID is invalid!',
         });
       }
+      const u = await User.findById(req.body.userId);
+      if(!u){
+        return res.status(404).json({
+          message: 'User not found!',
+        });
+      }
+      const thought = await Thought.create(req.body);
       const user = await User.findOneAndUpdate(
         { _id: req.body.userId },
         { $addToSet: { thoughts: thought._id } },
         { new: true }
       );
-
-      if (!user) {
-        return res.status(404).json({
-          message: 'Thought created, but found no user with that ID',
-        });
-      }
 
       res.json('Created the thought 🎉');
     } catch (err) {
@@ -130,14 +130,20 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  // Remove thought response
+  // Remove thought reaction
   async removeThoughtReaction(req, res) {
     try {
+      if(!ObjectId.isValid(req.params.reactionId) || !ObjectId.isValid(req.params.thoughtId)){
+        return res.status(404).json({
+          message: 'ID is invalid!',
+        });
+      }
+      
       const thought = await Thought.findOneAndUpdate(
         { _id: req.params.thoughtId },
         { $pull: { reactions: { reactionId: req.params.reactionId } } },
         { runValidators: true, new: true }
-      )
+      );
 
       if (!thought) {
         return res.status(404).json({ message: 'No thought with this id!' });

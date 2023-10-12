@@ -1,3 +1,5 @@
+const { Thought } = require('../models');
+const { obj } = require('../models/Reaction');
 const User = require('../models/User');
 const ObjectId = require('mongoose').Types.ObjectId;
 
@@ -12,6 +14,11 @@ module.exports = {
   },
   async getSingleUser(req, res) {
     try {
+      if(!ObjectId.isValid(req.params.userId)){
+        return res.status(404).json({
+          message: 'ID is invalid!',
+        });
+      }
       const user = await User.findOne({ _id: req.params.userId })
         .select('-__v');
 
@@ -35,6 +42,11 @@ module.exports = {
   },
   async addFriend(req, res) {
     try {
+      if(!ObjectId.isValid(req.params.userId) || !ObjectId.isValid(req.params.friendId)){
+        return res.status(404).json({
+          message: 'ID is invalid!',
+        });
+      }
       const friend = await User.findOne( { _id: req.params.friendId } );
       if (!friend) {
         return res.status(404).json({ message: 'Friend not found in Users!' });
@@ -57,6 +69,11 @@ module.exports = {
   },
   async updateUser(req, res) {
     try {
+      if(!ObjectId.isValid(req.params.userId)){
+        return res.status(404).json({
+          message: 'ID is invalid!',
+        });
+      }
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
         { $set: req.body },
@@ -75,13 +92,23 @@ module.exports = {
   },
   async deleteUser(req, res) {
     try {
+      if(!ObjectId.isValid(req.params.userId)){
+        return res.status(404).json({
+          message: 'ID is invalid!',
+        });
+      }
       const user = await User.findOneAndRemove({ _id: req.params.userId });
 
       if (!user) {
         return res.status(404).json({ message: 'No user with this id!' });
       }
 
-// TODO:  Destroy all thoughts???
+      const thoughtRay = user.thoughts;
+      const numberRay = [];
+      for(let i = 0; i < thoughtRay.length; i++){
+        numberRay.push(thoughtRay[i].valueOf());
+      }
+      await Thought.deleteMany({ _id: { $in: numberRay }},);
 
       res.json({ message: 'User successfully deleted!' });
     } catch (err) {
@@ -90,6 +117,11 @@ module.exports = {
   },
   async deleteFriend(req, res) {
     try {
+      if(!ObjectId.isValid(req.params.userId) || !ObjectId.isValid(req.params.friendId)){
+        return res.status(404).json({
+          message: 'ID is invalid!',
+        });
+      }
       const friend = await User.findOne( { _id: req.params.friendId } );
       if (!friend) {
         return res.status(404).json({ message: 'Friend not found in Users!' });
@@ -102,9 +134,7 @@ module.exports = {
       );
 
       if (!user) {
-        return res
-          .status(404)
-          .json({ message: 'No user with this id!' });
+        return res.status(404).json({ message: 'No user with this id!' });
       }
 
       res.json({ message: 'Friend successfully deleted!' });
