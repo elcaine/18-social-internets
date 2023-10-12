@@ -12,7 +12,7 @@ module.exports = {
   },
   async getSingleThought(req, res) {
     try {
-      if(!ObjectId.isValid(req.body.thoughtId)){
+      if(!ObjectId.isValid(req.params.thoughtId)){
         return res.status(404).json({
           message: 'ID is invalid!',
         });

@@ -77,7 +77,7 @@ No screenshot made for this challenge as there is no GUI to demo and the video-w
 
 ## Links
 ### [Link to repo](https://github.com/elcaine/18-social-internets)
-### [Link to video walkthrough](https://youtu.be/2F_ACNk1SV4)
+### [Link to video walkthrough](https://youtu.be/nwZlWZqviek)
 
 ### Acknowledged sources
 - Starter code based on previous activities.

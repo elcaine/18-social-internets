@@ -34,6 +34,11 @@ module.exports = {
   // create a new user
   async createUser(req, res) {
     try {
+      const u = await User.findOne({ username: req.body.username });
+      const e = await User.findOne({ email: req.body.email });
+      if(u || e){
+        return res.status(404).json({ message: 'User or Email already in use' });
+      }
       const dbUserData = await User.create(req.body);
       res.json(dbUserData);
     } catch (err) {
